@@ -1,6 +1,6 @@
-# Loads and Stress Visualization Tool
+# NASTRAN Outlier Detection and Visualization Tool
 
-This Python tool reads NASTRAN `.dat` and `.op2` files to identify and visualize elements with high stress across multiple load cases.
+This Python tool reads NASTRAN `.dat` and `.op2` files to identify and visualize elements that exhibit statistically high values across multiple load cases.
 
 ## Features
 - Parses `.dat` for element-to-node mapping and node coordinates.
