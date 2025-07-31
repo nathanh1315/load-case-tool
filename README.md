@@ -20,3 +20,8 @@ This Python tool reads NASTRAN `.dat` and `.op2` files to identify and visualize
 ## Files
 - `Analysis_main.py`: Main script for user interaction and running analysis.  
 - `Analysis_helper.py`: Functions to parse files, flag elements, and plot heatmap.
+
+## Output
+This tool generates a heatmap visualizing how frequently each element was flagged as an outlier across multiple load cases. Areas with higher intensity indicate elements that are consistently identified as anomalous, helping prioritize further inspection or redesign.
+
+<img width="1090" height="816" alt="image" src="https://github.com/user-attachments/assets/a57c6eb6-f357-4aa4-825e-cb61dbd83d28" />
