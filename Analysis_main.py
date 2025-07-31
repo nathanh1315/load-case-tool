@@ -46,4 +46,4 @@ flagged_elements_by_case = get_flagged_elements(op2_file, selected_component)
 print(flagged_elements_by_case)
 
 # ----- Step 3: Visualize Heatmap -----
-create_element_heatmap(flagged_elements_by_case, elem_to_nodes, node_coords)
+create_element_heatmap(flagged_elements_by_case, elem_to_nodes, node_coords, selected_component)

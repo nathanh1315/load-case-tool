@@ -19,11 +19,13 @@ def get_geometry(bdf_filename):
     bdf.read_bdf(bdf_filename)
 
     # Build a dictionary that maps each element to its connected nodes
+    # print(bdf.elements.items())
     elem_to_nodes = {}
     for eid, elem in bdf.elements.items():
         elem_to_nodes[eid] = elem.node_ids
 
     # Build a dictionary that maps each node to its (x, y, z) position
+    # print(bdf.nodes.items())
     node_coords = {}
     for nid, node in bdf.nodes.items():
         node_coords[nid] = node.get_position()
@@ -53,7 +55,8 @@ def get_flagged_elements(op2_file, stress_component="von_mises"):
     # Get the stress results for CQUAD4 elements (plate elements)
     stress_obj = op2.op2_results.stress.cquad4_stress
 
-     # Loop over each load case’s stress data
+    # Loop over each load case’s stress data
+    # print(stress_obj.items())
     flagged_elements_by_case = {}
     for case_id, plate_stress in stress_obj.items():
 
@@ -77,7 +80,7 @@ def get_flagged_elements(op2_file, stress_component="von_mises"):
         # For each element, find the maximum stress value (across all its nodes)
         max_stress = filtered_df.groupby('element')[stress_component].max().reset_index()
         
-        # COmpute statistics to find threshhold for outliers
+        # Compute statistics to find threshhold for outliers
         mean_stress = max_stress[stress_component].mean()
         std_vm = max_stress[stress_component].std()
         threshold = mean_stress + 2 * std_vm
@@ -94,7 +97,7 @@ def get_flagged_elements(op2_file, stress_component="von_mises"):
     # Return all flagged elements grouped by load case
     return flagged_elements_by_case
 
-def create_element_heatmap(flagged_elements_by_case, elem_to_nodes, node_coords):
+def create_element_heatmap(flagged_elements_by_case, elem_to_nodes, node_coords, selected_component):
     """
     Creates a heatmap of flagged elements across multiple load cases.
     
@@ -102,6 +105,7 @@ def create_element_heatmap(flagged_elements_by_case, elem_to_nodes, node_coords)
     - flagged_elements_by_case: dict of {case_name: list of flagged element IDs}
     - elem_to_nodes: dict of {element ID: list of node IDs}
     - node_coords: dict of {node ID: np.array([x, y, z])}
+    - stress_component: the stress component used for flagging (e.g., 'von_mises', 'oxx', 'oyy')
     """
 
     # Flatten all the flagged element IDs into one list
@@ -117,20 +121,21 @@ def create_element_heatmap(flagged_elements_by_case, elem_to_nodes, node_coords)
     for elem_id, node_ids in elem_to_nodes.items():
         coords = []
         for nid in node_ids:
-            coord = node_coords[nid][:2]
+            coord = node_coords[nid][:2] #only need x and y coordinates
             coords.append(coord)
         centroid = np.mean(coords, axis = 0)
         element_centroids[elem_id] = centroid
 
     # Set up the plot canvas
     fig, ax = plt.subplots()
+    ax.set_title(f"Heatmap of flagged elements for: {selected_component}")
 
     # Draw every element as a light gray polygon outline, no fill — this is the wing mesh
     all_patches = []
     for elem_id, node_ids in elem_to_nodes.items():
         coords = []
         for nid in node_ids:
-            coord = node_coords[nid][:2]
+            coord = node_coords[nid][:2] #only need x and y coordinates
             coords.append(coord)
         polygon = Polygon(coords, closed=True, edgecolor='lightgray', facecolor='none', linewidth=0.5)
         all_patches.append(polygon)
@@ -149,7 +154,7 @@ def create_element_heatmap(flagged_elements_by_case, elem_to_nodes, node_coords)
         node_ids = elem_to_nodes[elem_id]
         coords = []
         for nid in node_ids:
-            coord = node_coords[nid][:2]
+            coord = node_coords[nid][:2] #only need x and y coordinates
             coords.append(coord)
         polygon = Polygon(coords, closed=True, edgecolor='none')
         flagged_patches.append(polygon)
@@ -164,7 +169,7 @@ def create_element_heatmap(flagged_elements_by_case, elem_to_nodes, node_coords)
     ax.add_collection(flagged_pc)
 
     # Add a colorbar to show frequency of flagged elements
-    fig.colorbar(flagged_pc, ax=ax, label='Frequency of flagged elements')
+    fig.colorbar(flagged_pc, ax=ax, label='Normalized frequency of flagged elements')
 
     # Let the plot zoom to fit everything and keep the shape from getting stretched out
     ax.autoscale()
