@@ -1,6 +1,6 @@
 # NASTRAN Outlier Detection and Visualization Tool
 
-This Python tool reads NASTRAN `.dat` and `.op2` files to identify and visualize elements that exhibit statistically high values across multiple load cases.
+This Python tool reads NASTRAN `.dat` and `.op2` files to identify and visualize elements that exhibit statistically high values across multiple load cases. This tool was developed and tested using a simplified FEMAP model: a rectangular shell mesh fixed along one edge to represent the wing-fuselage connection.
 
 ## Features
 - Parses `.dat` for element-to-node mapping and node coordinates.
